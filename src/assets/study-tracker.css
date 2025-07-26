@@ -20,7 +20,12 @@
   --shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
   --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.6);
   --glow: 0 0 20px rgba(93, 173, 226, 0.3);
-  --accent-gradient: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #253341 100%);
+  --accent-gradient: linear-gradient(
+    135deg,
+    #0f1419 0%,
+    #1a252f 50%,
+    #253341 100%
+  );
   --card-gradient: linear-gradient(135deg, #253341 0%, #1e2a38 100%);
   --header-gradient: linear-gradient(135deg, #0a0f13 0%, #1a252f 100%);
   --border-radius: 15px;
@@ -42,7 +47,8 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: var(--accent-gradient);
   min-height: 100vh;
   width: 100%;
@@ -55,7 +61,7 @@ body {
 
 /* Twinkling stars background */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
@@ -120,13 +126,18 @@ body::before {
 }
 
 .control-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -182,8 +193,8 @@ body::before {
 }
 
 /* Input styles */
-input[type='number'],
-input[type='file'] {
+input[type="number"],
+input[type="file"] {
   background: var(--input-bg);
   border: 2px solid var(--border-color);
   border-radius: 8px;
@@ -193,47 +204,20 @@ input[type='file'] {
   transition: var(--transition);
 }
 
-input[type='number']:focus,
-input[type='file']:focus {
+input[type="number"]:focus,
+input[type="file"]:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 10px rgba(93, 173, 226, 0.3);
 }
 
-/* Progress bar styles */
-.progress-bar {
-  background: var(--input-bg);
-  border-radius: 10px;
-  overflow: hidden;
-  height: 20px;
-  position: relative;
+/* Progress bar styles - Updated for new unified component */
+.progress-container {
+  margin: 8px 0;
 }
 
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
-  transition: width 0.5s ease;
-  position: relative;
-}
-
-.progress-fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+.progress-item .progress-container {
+  margin: 4px 0;
 }
 
 /* Modal styles */
@@ -301,9 +285,6 @@ input[type='file']:focus {
 
 /* Grid and layout */
 .chapters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
   padding: 20px;
 }
 
@@ -318,13 +299,15 @@ input[type='file']:focus {
   }
 
   .chapters-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
     padding: 15px;
   }
 
   .control-btn {
     padding: 10px 16px;
     font-size: 0.8em;
+  }
+
+  .progress-container {
+    margin: 6px 0;
   }
 }

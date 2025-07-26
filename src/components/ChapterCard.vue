@@ -1,76 +1,42 @@
 <template>
-  <div class="chapter-card" :class="{ completed: progress.completed }">
-    <div class="chapter-header">
-      <div class="chapter-number">{{ chapter.id }}</div>
-      <div class="chapter-title">{{ chapter.title }}</div>
-      <div class="chapter-status">
-        {{ progress.completed ? '✅' : '📖' }}
-      </div>
-    </div>
+  <div class="chapter-card card card-hover" :class="{ 'card-completed': progress.completed }">
+    <ChapterHeader :chapter="chapter" :progress="progress" />
 
-    <div class="chapter-stats">
+    <div class="chapter-stats flex flex-gap-lg">
       <div class="stat">
-        <span class="stat-label">Pages:</span>
-        <span class="stat-value">{{ chapter.pages }}</span>
+        <span class="stat-label text-muted">Pages:</span>
+        <span class="stat-value text-primary font-bold">{{ chapter.pages }}</span>
       </div>
       <div class="stat">
-        <span class="stat-label">Problems:</span>
-        <span class="stat-value">{{ chapter.problems }}</span>
+        <span class="stat-label text-muted">Problems:</span>
+        <span class="stat-value text-primary font-bold">{{ chapter.problems }}</span>
       </div>
     </div>
 
     <div class="progress-section">
-      <div class="progress-item">
-        <label>Pages Read:</label>
-        <div class="progress-controls">
-          <input
-            type="number"
-            :value="progress.pagesRead"
-            @input="updatePagesRead"
-            :max="chapter.pages"
-            min="0"
-            class="progress-input"
-          />
-          <span class="progress-total">/ {{ chapter.pages }}</span>
-        </div>
-        <div class="progress-bar">
-          <div
-            class="progress-fill"
-            :style="{ width: `${(progress.pagesRead / chapter.pages) * 100}%` }"
-          ></div>
-        </div>
-      </div>
+      <ProgressInput
+        label="Pages Read"
+        v-model="pagesRead"
+        :max="chapter.pages"
+        :show-percentage="true"
+      />
 
-      <div class="progress-item">
-        <label>Problems Solved:</label>
-        <div class="progress-controls">
-          <input
-            type="number"
-            :value="progress.problemsSolved"
-            @input="updateProblemsSolved"
-            :max="chapter.problems"
-            min="0"
-            class="progress-input"
-          />
-          <span class="progress-total">/ {{ chapter.problems }}</span>
-        </div>
-        <div class="progress-bar">
-          <div
-            class="progress-fill"
-            :style="{ width: `${(progress.problemsSolved / chapter.problems) * 100}%` }"
-          ></div>
-        </div>
-      </div>
+      <ProgressInput
+        label="Problems Solved"
+        v-model="problemsSolved"
+        :max="chapter.problems"
+        :show-percentage="true"
+      />
 
-      <div class="checkbox-item">
-        <label>
+      <div class="checkbox-item card">
+        <label class="flex flex-gap-sm">
           <input type="checkbox" :checked="progress.mcqCompleted" @change="updateMcqCompleted" />
-          MCQ Quiz Completed
+          <span>MCQ Quiz Completed</span>
         </label>
       </div>
     </div>
 
-    <div class="chapter-actions">
+    <div class="chapter-actions flex flex-gap-md">
       <button
         class="control-btn"
         :class="progress.completed ? 'danger' : 'achievement'"
@@ -84,15 +50,18 @@
       </button>
     </div>
 
-    <div v-if="progress.completed && progress.completedDate" class="completion-date">
+    <div v-if="progress.completed && progress.completedDate" class="completion-date text-center text-light">
       Completed: {{ formatDate(progress.completedDate) }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import type { Chapter, ChapterProgress } from '@/types'
 import { useStudyTrackerStore } from '@/stores/counter'
+import ProgressInput from './ProgressInput.vue'
+import ChapterHeader from './ChapterHeader.vue'
 
 interface Props {
   chapter: Chapter
@@ -102,66 +71,49 @@ interface Props {
 const props = defineProps<Props>()
 const store = useStudyTrackerStore()
 
-const updatePagesRead = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const value = Math.min(parseInt(target.value) || 0, props.chapter.pages)
-  store.updateChapterProgress(props.chapter.id, {
-    pagesRead: value,
-    completed:
-      value === props.chapter.pages &&
-      props.progress.problemsSolved === props.chapter.problems &&
-      props.progress.mcqCompleted,
-  })
-}
+// Local reactive state for inputs
+const pagesRead = ref(props.progress.pagesRead)
+const problemsSolved = ref(props.progress.problemsSolved)
 
-const updateProblemsSolved = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const value = Math.min(parseInt(target.value) || 0, props.chapter.problems)
-  store.updateChapterProgress(props.chapter.id, {
-    problemsSolved: value,
-    completed:
-      props.progress.pagesRead === props.chapter.pages &&
-      value === props.chapter.problems &&
-      props.progress.mcqCompleted,
-  })
-}
+// Watch for changes in props and update local state
+watch(() => props.progress.pagesRead, (newValue) => {
+  pagesRead.value = newValue
+})
+
+watch(() => props.progress.problemsSolved, (newValue) => {
+  problemsSolved.value = newValue
+})
+
+// Watch local state and update store
+watch(pagesRead, (newValue) => {
+  store.updateChapterProgress(props.chapter.id, { pagesRead: newValue })
+})
+
+watch(problemsSolved, (newValue) => {
+  store.updateChapterProgress(props.chapter.id, { problemsSolved: newValue })
+})
 
 const updateMcqCompleted = (event: Event) => {
   const target = event.target as HTMLInputElement
   store.updateChapterProgress(props.chapter.id, {
     mcqCompleted: target.checked,
-    completed:
-      props.progress.pagesRead === props.chapter.pages &&
-      props.progress.problemsSolved === props.chapter.problems &&
-      target.checked,
   })
 }
 
 const toggleCompletion = () => {
-  if (props.progress.completed) {
-    store.updateChapterProgress(props.chapter.id, {
-      completed: false,
-      pagesRead: 0,
-      problemsSolved: 0,
-      mcqCompleted: false,
-      completedDate: undefined,
-    })
-  } else {
-    store.updateChapterProgress(props.chapter.id, {
-      completed: true,
-      pagesRead: props.chapter.pages,
-      problemsSolved: props.chapter.problems,
-      mcqCompleted: true,
-    })
-  }
+  store.updateChapterProgress(props.chapter.id, {
+    completed: !props.progress.completed,
+    completedDate: !props.progress.completed ? new Date().toISOString() : undefined,
+  })
 }
 
 const quickComplete = () => {
   store.updateChapterProgress(props.chapter.id, {
-    completed: true,
     pagesRead: props.chapter.pages,
     problemsSolved: props.chapter.problems,
     mcqCompleted: true,
+    completed: true,
+    completedDate: new Date().toISOString(),
   })
 }
 
@@ -172,27 +124,12 @@ const formatDate = (dateString: string) => {
 
 <style scoped>
 .chapter-card {
-  background: var(--card-bg);
-  border: 2px solid var(--border-color);
-  border-radius: var(--border-radius);
   padding: 20px;
-  transition: var(--transition);
   position: relative;
   overflow: hidden;
 }
 
-.chapter-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-hover);
-  border-color: var(--primary-color);
-}
-
-.chapter-card.completed {
-  border-color: var(--secondary-color);
-  background: linear-gradient(135deg, var(--card-bg) 0%, rgba(88, 214, 141, 0.1) 100%);
-}
-
-.chapter-card.completed::before {
+.chapter-card.card-completed::before {
   content: '';
   position: absolute;
   top: 0;
@@ -204,7 +141,7 @@ const formatDate = (dateString: string) => {
   border-color: transparent var(--secondary-color) transparent transparent;
 }
 
-.chapter-card.completed::after {
+.chapter-card.card-completed::after {
   content: '✓';
   position: absolute;
   top: 5px;
@@ -214,47 +151,12 @@ const formatDate = (dateString: string) => {
   font-size: 20px;
 }
 
-.chapter-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.chapter-number {
-  background: var(--primary-color);
-  color: white;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 1.1em;
-  flex-shrink: 0;
-}
-
-.chapter-title {
-  flex: 1;
-  font-weight: 600;
-  color: var(--text-color);
-  line-height: 1.4;
-}
-
-.chapter-status {
-  font-size: 24px;
-  flex-shrink: 0;
-}
-
 .chapter-stats {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
   padding: 10px;
   background: var(--input-bg);
   border-radius: 8px;
   border: 1px solid var(--border-color);
+  margin-bottom: 20px;
 }
 
 .stat {
@@ -262,110 +164,44 @@ const formatDate = (dateString: string) => {
   gap: 5px;
 }
 
-.stat-label {
-  color: var(--text-muted);
-  font-size: 0.9em;
-}
-
-.stat-value {
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
 .progress-section {
   margin-bottom: 20px;
 }
 
-.progress-item {
-  margin-bottom: 15px;
+.checkbox-item {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--input-bg);
 }
 
-.progress-item label {
-  display: block;
-  margin-bottom: 5px;
+.checkbox-item label {
+  cursor: pointer;
   color: var(--text-light);
   font-weight: 500;
   font-size: 0.9em;
 }
 
-.progress-controls {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 5px;
-}
-
-.progress-input {
-  width: 80px;
-  padding: 5px 8px;
-  font-size: 0.9em;
-}
-
-.progress-total {
-  color: var(--text-muted);
-  font-size: 0.9em;
-}
-
-.progress-bar {
-  height: 8px;
-  background: var(--input-bg);
-  border-radius: 4px;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-}
-
-.checkbox-item {
-  margin-top: 15px;
-}
-
-.checkbox-item label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  color: var(--text-light);
-  font-size: 0.9em;
-}
-
-.checkbox-item input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--primary-color);
+.checkbox-item input[type="checkbox"] {
+  transform: scale(1.1);
 }
 
 .chapter-actions {
-  display: flex;
-  gap: 10px;
+  justify-content: center;
   flex-wrap: wrap;
-}
-
-.chapter-actions .control-btn {
-  flex: 1;
-  min-width: 120px;
-  padding: 10px 16px;
-  font-size: 0.85em;
 }
 
 .completion-date {
   margin-top: 15px;
-  padding: 8px 12px;
+  padding: 10px;
   background: var(--input-bg);
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.8em;
-  color: var(--text-muted);
-  text-align: center;
-  border: 1px solid var(--border-color);
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
   .chapter-card {
     padding: 15px;
-  }
-
-  .chapter-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
   }
 
   .chapter-stats {
@@ -375,10 +211,7 @@ const formatDate = (dateString: string) => {
 
   .chapter-actions {
     flex-direction: column;
-  }
-
-  .chapter-actions .control-btn {
-    min-width: auto;
+    gap: 10px;
   }
 }
 </style>

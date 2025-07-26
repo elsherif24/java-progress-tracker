@@ -1,0 +1,264 @@
+/* Utility Classes for Common Patterns */
+
+/* Layout Utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-gap-sm {
+  gap: 8px;
+}
+
+.flex-gap-md {
+  gap: 15px;
+}
+
+.flex-gap-lg {
+  gap: 20px;
+}
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.stats-grid {
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 15px !important;
+}
+
+/* Card Utilities */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.card-completed {
+  border-color: var(--secondary-color);
+  background: linear-gradient(
+    135deg,
+    var(--card-bg) 0%,
+    rgba(88, 214, 141, 0.1) 100%
+  );
+}
+
+.card-current {
+  border-color: var(--accent-color);
+  background: linear-gradient(
+    135deg,
+    var(--card-bg) 0%,
+    rgba(243, 156, 18, 0.1) 100%
+  );
+}
+
+/* Badge Utilities */
+.badge {
+  padding: 6px 14px;
+  border-radius: 15px;
+  font-size: 0.8em;
+  font-weight: 600;
+  text-align: center;
+}
+
+.badge-success {
+  background: var(--secondary-color);
+  color: white;
+}
+
+.badge-warning {
+  background: var(--accent-color);
+  color: white;
+}
+
+.badge-muted {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+/* Text Utilities */
+.text-primary {
+  color: var(--primary-color);
+}
+
+.text-secondary {
+  color: var(--secondary-color);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-light {
+  color: var(--text-light);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-bold {
+  font-weight: 600;
+}
+
+.font-normal {
+  font-weight: 500;
+}
+
+/* Progress Utilities */
+.progress-item {
+  margin-bottom: 15px;
+}
+
+.progress-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-light);
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+.progress-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.progress-input {
+  width: 80px;
+  padding: 8px 12px;
+  font-size: 0.9em;
+  background: var(--input-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-color);
+  transition: var(--transition);
+}
+
+.progress-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(93, 173, 226, 0.3);
+}
+
+.progress-total {
+  color: var(--text-muted);
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/* Progress Bar Utilities */
+.progress-spacing {
+  margin: 12px 0;
+}
+
+.progress-spacing--small {
+  margin: 8px 0;
+}
+
+.progress-spacing--large {
+  margin: 16px 0;
+}
+
+.progress-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 0.9em;
+  color: var(--text-light);
+}
+
+.progress-stats .current {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.progress-stats .total {
+  color: var(--text-muted);
+}
+
+/* Responsive Utilities */
+@media (max-width: 1200px) {
+  .grid-auto {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-auto {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .flex-gap-lg {
+    gap: 10px;
+  }
+
+  .progress-input {
+    width: 70px;
+    padding: 6px 8px;
+    font-size: 0.8em;
+  }
+
+  .progress-spacing {
+    margin: 8px 0;
+  }
+
+  .progress-spacing--small {
+    margin: 6px 0;
+  }
+
+  .progress-spacing--large {
+    margin: 12px 0;
+  }
+}

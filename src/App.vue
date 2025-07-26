@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useStudyTrackerStore } from '@/stores/counter'
-import AppHeader from '@/components/AppHeader.vue'
-import AppControls from '@/components/AppControls.vue'
-import ProgressSummary from '@/components/ProgressSummary.vue'
-import CurrentChapter from '@/components/CurrentChapter.vue'
-import ChapterSummaryCard from '@/components/ChapterSummaryCard.vue'
-import CelebrationModal from '@/components/CelebrationModal.vue'
-import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import { onMounted } from "vue";
+import { useStudyTrackerStore } from "@/stores/counter";
+import AppHeader from "@/components/AppHeader.vue";
+import AppControls from "@/components/AppControls.vue";
+import ProgressSummary from "@/components/ProgressSummary.vue";
+import CurrentChapter from "@/components/CurrentChapter.vue";
+import ChapterSummaryCard from "@/components/ChapterSummaryCard.vue";
+import CelebrationModal from "@/components/CelebrationModal.vue";
+import ConfirmationModal from "@/components/ConfirmationModal.vue";
+import ToastContainer from "@/components/ToastContainer.vue";
 
-const store = useStudyTrackerStore()
+const store = useStudyTrackerStore();
 
 onMounted(() => {
-  store.initializeStore()
-})
+  store.initializeStore();
+});
 </script>
 
 <template>
@@ -25,8 +26,10 @@ onMounted(() => {
       <CurrentChapter />
 
       <main class="chapters">
-        <h2 class="chapters-title">📋 All Chapters Overview</h2>
-        <div class="chapters-grid">
+        <h2 class="chapters-title text-center text-color font-bold">
+          📋 All Chapters Overview
+        </h2>
+        <div class="chapters-grid grid-auto">
           <ChapterSummaryCard
             v-for="item in store.chapterProgressList"
             :key="item.id"
@@ -49,11 +52,14 @@ onMounted(() => {
         @close="store.hideConfirmationModal"
       />
     </div>
+
+    <!-- Toast notifications for milestone celebrations -->
+    <ToastContainer />
   </div>
 </template>
 
 <style>
-@import '@/assets/study-tracker.css';
+@import "@/assets/study-tracker.css";
 
 .app-container {
   width: 100%;
@@ -68,11 +74,8 @@ onMounted(() => {
 }
 
 .chapters-title {
-  color: var(--text-color);
-  text-align: center;
   margin-bottom: 25px;
   font-size: 1.5em;
-  font-weight: 600;
 }
 
 @media (max-width: 768px) {

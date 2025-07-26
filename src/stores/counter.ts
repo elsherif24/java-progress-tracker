@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 import type {
   ProgressData,
   StreakData,
@@ -6,17 +6,18 @@ import type {
   ChapterProgress,
   OverallProgress,
   TimeEstimates,
-} from '@/types'
+} from "@/types";
 import {
   CHAPTERS_DATA,
   TOTAL_PAGES,
   TOTAL_PROBLEMS,
   TOTAL_CHAPTERS,
   DEFAULT_SETTINGS,
-} from '@/data/chapters'
-import { soundService } from '@/services/soundService'
+} from "@/data/chapters";
+import { soundService } from "@/services/soundService";
+import { useToast } from "@/composables/useToast";
 
-export const useStudyTrackerStore = defineStore('studyTracker', {
+export const useStudyTrackerStore = defineStore("studyTracker", {
   state: () => ({
     progressData: {} as ProgressData,
     currentChapterId: 1, // ID of the chapter currently being worked on
@@ -32,58 +33,75 @@ export const useStudyTrackerStore = defineStore('studyTracker', {
     } as StudySettings,
     celebrationModal: {
       show: false,
-      message: '',
+      message: "",
     },
     confirmationModal: {
       show: false,
-      message: '',
+      message: "",
       onConfirm: null as (() => void) | null,
     },
   }),
 
   getters: {
     overallProgress(): OverallProgress {
-      const chapters = Object.values(this.progressData)
-      const chaptersCompleted = chapters.filter((ch) => ch.completed).length
-      const totalPagesRead = chapters.reduce((sum, ch) => sum + ch.pagesRead, 0)
-      const totalProblems = chapters.reduce((sum, ch) => sum + ch.problemsSolved, 0)
-      const overallPercent = Math.round((chaptersCompleted / TOTAL_CHAPTERS) * 100)
+      const chapters = Object.values(this.progressData);
+      const chaptersCompleted = chapters.filter((ch) => ch.completed).length;
+      const totalPagesRead = chapters.reduce(
+        (sum, ch) => sum + ch.pagesRead,
+        0,
+      );
+      const totalProblems = chapters.reduce(
+        (sum, ch) => sum + ch.problemsSolved,
+        0,
+      );
+      const overallPercent = Math.round(
+        (chaptersCompleted / TOTAL_CHAPTERS) * 100,
+      );
 
       return {
         chaptersCompleted,
         totalPagesRead,
         totalProblems,
         overallPercent,
-      }
+      };
     },
 
     timeEstimates(): TimeEstimates {
-      const { overallProgress } = this
-      const remainingPages = TOTAL_PAGES - overallProgress.totalPagesRead
-      const remainingProblems = TOTAL_PROBLEMS - overallProgress.totalProblems
+      const { overallProgress } = this;
+      const remainingPages = TOTAL_PAGES - overallProgress.totalPagesRead;
+      const remainingProblems = TOTAL_PROBLEMS - overallProgress.totalProblems;
 
-      const readingTime = Math.round((remainingPages * this.studySettings.readingSpeed) / 60)
-      const problemTime = Math.round((remainingProblems * this.studySettings.problemTime) / 60)
-      const totalTime = readingTime + problemTime
+      const readingTime = Math.round(
+        (remainingPages * this.studySettings.readingSpeed) / 60,
+      );
+      const problemTime = Math.round(
+        (remainingProblems * this.studySettings.problemTime) / 60,
+      );
+      const totalTime = readingTime + problemTime;
 
-      const daysToComplete = Math.ceil(totalTime / this.studySettings.dailyHours)
-      const completionDate = new Date()
-      completionDate.setDate(completionDate.getDate() + daysToComplete)
+      const daysToComplete = Math.ceil(
+        totalTime / this.studySettings.dailyHours,
+      );
+      const completionDate = new Date();
+      completionDate.setDate(completionDate.getDate() + daysToComplete);
 
       return {
         readingTime,
         problemTime,
         totalTime,
-        completionDate: daysToComplete > 0 ? completionDate.toLocaleDateString() : 'Completed!',
-      }
+        completionDate:
+          daysToComplete > 0
+            ? completionDate.toLocaleDateString()
+            : "Completed!",
+      };
     },
 
     chapterProgressList(): Array<{
-      id: number
-      title: string
-      pages: number
-      problems: number
-      progress: ChapterProgress
+      id: number;
+      title: string;
+      pages: number;
+      problems: number;
+      progress: ChapterProgress;
     }> {
       return CHAPTERS_DATA.map((chapter) => ({
         ...chapter,
@@ -94,18 +112,20 @@ export const useStudyTrackerStore = defineStore('studyTracker', {
           problemsSolved: 0,
           mcqCompleted: false,
         },
-      }))
+      }));
     },
 
     currentChapter(): {
-      id: number
-      title: string
-      pages: number
-      problems: number
-      progress: ChapterProgress
+      id: number;
+      title: string;
+      pages: number;
+      problems: number;
+      progress: ChapterProgress;
     } | null {
-      const chapter = CHAPTERS_DATA.find((ch) => ch.id === this.currentChapterId)
-      if (!chapter) return null
+      const chapter = CHAPTERS_DATA.find(
+        (ch) => ch.id === this.currentChapterId,
+      );
+      if (!chapter) return null;
 
       return {
         ...chapter,
@@ -116,83 +136,89 @@ export const useStudyTrackerStore = defineStore('studyTracker', {
           problemsSolved: 0,
           mcqCompleted: false,
         },
-      }
+      };
     },
   },
 
   actions: {
     initializeStore() {
-      this.loadProgressData()
-      this.loadStreakData()
-      this.setCurrentChapterToFirstIncomplete()
+      this.loadProgressData();
+      this.loadStreakData();
+      this.setCurrentChapterToFirstIncomplete();
     },
 
     setCurrentChapterToFirstIncomplete() {
       // Find the first incomplete chapter, or default to chapter 1
       for (let i = 1; i <= TOTAL_CHAPTERS; i++) {
-        const progress = this.progressData[i]
+        const progress = this.progressData[i];
         if (!progress || !progress.completed) {
-          this.currentChapterId = i
-          return
+          this.currentChapterId = i;
+          return;
         }
       }
       // If all chapters are complete, stay on the last chapter
-      this.currentChapterId = TOTAL_CHAPTERS
+      this.currentChapterId = TOTAL_CHAPTERS;
     },
 
     loadProgressData() {
-      const saved = localStorage.getItem('javaStudyProgress')
+      const saved = localStorage.getItem("javaStudyProgress");
       if (saved) {
-        this.progressData = JSON.parse(saved)
+        this.progressData = JSON.parse(saved);
       }
     },
 
     saveProgressData() {
-      localStorage.setItem('javaStudyProgress', JSON.stringify(this.progressData))
+      localStorage.setItem(
+        "javaStudyProgress",
+        JSON.stringify(this.progressData),
+      );
     },
 
     loadStreakData() {
-      const saved = localStorage.getItem('javaStudyStreak')
+      const saved = localStorage.getItem("javaStudyStreak");
       if (saved) {
-        this.streakData = JSON.parse(saved)
+        this.streakData = JSON.parse(saved);
       }
-      this.updateStreak()
+      this.updateStreak();
     },
 
     saveStreakData() {
-      localStorage.setItem('javaStudyStreak', JSON.stringify(this.streakData))
+      localStorage.setItem("javaStudyStreak", JSON.stringify(this.streakData));
     },
 
     updateStreak() {
-      const today = new Date().toDateString()
-      const lastDate = this.streakData.lastActiveDate
+      const today = new Date().toDateString();
+      const lastDate = this.streakData.lastActiveDate;
 
       if (!lastDate) {
-        this.streakData.currentStreak = 1
-        this.streakData.lastActiveDate = today
+        this.streakData.currentStreak = 1;
+        this.streakData.lastActiveDate = today;
       } else if (lastDate !== today) {
-        const lastActiveDate = new Date(lastDate)
+        const lastActiveDate = new Date(lastDate);
         const daysSinceLastActive = Math.floor(
           (Date.now() - lastActiveDate.getTime()) / (1000 * 60 * 60 * 24),
-        )
+        );
 
         if (daysSinceLastActive === 1) {
-          this.streakData.currentStreak++
+          this.streakData.currentStreak++;
         } else if (daysSinceLastActive > 1) {
-          this.streakData.currentStreak = 1
+          this.streakData.currentStreak = 1;
         }
 
-        this.streakData.lastActiveDate = today
+        this.streakData.lastActiveDate = today;
       }
 
       if (this.streakData.currentStreak > this.streakData.longestStreak) {
-        this.streakData.longestStreak = this.streakData.currentStreak
+        this.streakData.longestStreak = this.streakData.currentStreak;
       }
 
-      this.saveStreakData()
+      this.saveStreakData();
     },
 
-    updateChapterProgress(chapterId: number, progress: Partial<ChapterProgress>) {
+    updateChapterProgress(
+      chapterId: number,
+      progress: Partial<ChapterProgress>,
+    ) {
       if (!this.progressData[chapterId]) {
         this.progressData[chapterId] = {
           id: chapterId,
@@ -200,11 +226,14 @@ export const useStudyTrackerStore = defineStore('studyTracker', {
           pagesRead: 0,
           problemsSolved: 0,
           mcqCompleted: false,
-        }
+        };
       }
 
-      const oldProgress = { ...this.progressData[chapterId] }
-      this.progressData[chapterId] = { ...this.progressData[chapterId], ...progress }
+      const oldProgress = { ...this.progressData[chapterId] };
+      this.progressData[chapterId] = {
+        ...this.progressData[chapterId],
+        ...progress,
+      };
 
       // Set start date if first progress is made
       if (
@@ -214,79 +243,144 @@ export const useStudyTrackerStore = defineStore('studyTracker', {
           progress.mcqCompleted ||
           progress.startDate)
       ) {
-        this.progressData[chapterId].startDate = progress.startDate || new Date().toISOString()
+        this.progressData[chapterId].startDate =
+          progress.startDate || new Date().toISOString();
+
+        // Play chapter start sound and show toast
+        if (progress.startDate) {
+          soundService.playChapterStartSound();
+          const chapter = CHAPTERS_DATA.find((ch) => ch.id === chapterId);
+          if (chapter) {
+            const toast = useToast();
+            toast.showChapterStarted(chapter.title);
+          }
+        }
       }
 
-      // Handle completion
+      // Handle milestone sounds and celebrations
+      const chapter = CHAPTERS_DATA.find((ch) => ch.id === chapterId);
+
+      // Pages progress
+      if (
+        progress.pagesRead !== undefined &&
+        progress.pagesRead > oldProgress.pagesRead &&
+        chapter
+      ) {
+        const isAllPagesComplete = progress.pagesRead === chapter.pages;
+
+        if (isAllPagesComplete) {
+          // When ALL pages are completed - play big-win1 only
+          soundService.playAllPagesCompleteSound();
+        } else if (progress.pagesRead % 5 === 0) {
+          // Every 5 pages - play small-win only
+          soundService.playPageProgressSound();
+        }
+      }
+
+      // Problems progress
+      if (
+        progress.problemsSolved !== undefined &&
+        progress.problemsSolved > oldProgress.problemsSolved &&
+        chapter
+      ) {
+        const isAllProblemsComplete =
+          progress.problemsSolved === chapter.problems;
+
+        if (isAllProblemsComplete) {
+          // When ALL problems are completed - play big-win1 only
+          soundService.playAllProblemsCompleteSound();
+        } else if (progress.problemsSolved % 5 === 0) {
+          // Every 5 problems - play small-win
+          soundService.playPageProgressSound();
+        }
+      }
+
+      // MCQ completion
+      if (progress.mcqCompleted && !oldProgress.mcqCompleted) {
+        soundService.playMcqMilestoneSound();
+
+        // Show MCQ completion toast
+        const toast = useToast();
+        toast.showMcqMilestone();
+      }
+
+      // Handle chapter completion
       if (progress.completed && !oldProgress.completed) {
-        this.progressData[chapterId].completedDate = new Date().toISOString()
-        this.updateStreak()
-        this.celebrateCompletion(chapterId)
+        this.progressData[chapterId].completedDate = new Date().toISOString();
+        this.updateStreak();
+
+        // Play chapter complete sound (big-win2.mp3)
+        soundService.playChapterCompleteSound();
+
+        // Show celebration modal and effects
+        this.celebrateCompletion(chapterId);
 
         // Auto-advance to next incomplete chapter
-        this.setCurrentChapterToFirstIncomplete()
+        this.setCurrentChapterToFirstIncomplete();
       }
 
-      this.saveProgressData()
+      this.saveProgressData();
     },
 
     setCurrentChapter(chapterId: number) {
       if (chapterId >= 1 && chapterId <= TOTAL_CHAPTERS) {
-        this.currentChapterId = chapterId
+        this.currentChapterId = chapterId;
       }
     },
 
     celebrateCompletion(chapterId: number) {
-      const chapter = CHAPTERS_DATA.find((ch) => ch.id === chapterId)
-      if (!chapter) return
+      const chapter = CHAPTERS_DATA.find((ch) => ch.id === chapterId);
+      if (!chapter) return;
 
-      const { chaptersCompleted } = this.overallProgress
+      const { chaptersCompleted } = this.overallProgress;
 
-      let soundType: 'smallWin' | 'mediumWin' | 'bigWin' | 'biggestWin' = 'smallWin'
-      let message = `🎉 Chapter ${chapterId} completed: "${chapter.title}"!`
+      let soundType: "smallWin" | "mediumWin" | "bigWin" | "biggestWin" =
+        "smallWin";
+      let message = `🎉 Chapter ${chapterId} completed: "${chapter.title}"!`;
 
       if (chaptersCompleted === TOTAL_CHAPTERS) {
-        soundType = 'biggestWin'
-        message = '🏆 Congratulations! You have completed all chapters! You are now a Java master!'
+        soundType = "biggestWin";
+        message =
+          "🏆 Congratulations! You have completed all chapters! You are now a Java master!";
       } else if (chaptersCompleted % 10 === 0) {
-        soundType = 'bigWin'
-        message = `🚀 Amazing! You've completed ${chaptersCompleted} chapters! Keep up the excellent work!`
+        soundType = "bigWin";
+        message = `🚀 Amazing! You've completed ${chaptersCompleted} chapters! Keep up the excellent work!`;
       } else if (chaptersCompleted % 5 === 0) {
-        soundType = 'mediumWin'
-        message = `⭐ Great progress! ${chaptersCompleted} chapters completed!`
+        soundType = "mediumWin";
+        message = `⭐ Great progress! ${chaptersCompleted} chapters completed!`;
       }
 
-      soundService.playSound(soundType)
-      this.showCelebrationModal(message)
+      soundService.playSound(soundType);
+      this.showCelebrationModal(message);
     },
 
     showCelebrationModal(message: string) {
-      this.celebrationModal.show = true
-      this.celebrationModal.message = message
+      this.celebrationModal.show = true;
+      this.celebrationModal.message = message;
     },
 
     hideCelebrationModal() {
-      this.celebrationModal.show = false
-      this.celebrationModal.message = ''
+      this.celebrationModal.show = false;
+      this.celebrationModal.message = "";
     },
 
     showConfirmationModal(message: string, onConfirm: () => void) {
-      this.confirmationModal.show = true
-      this.confirmationModal.message = message
-      this.confirmationModal.onConfirm = onConfirm
+      this.confirmationModal.show = true;
+      this.confirmationModal.message = message;
+      this.confirmationModal.onConfirm = onConfirm;
     },
 
     hideConfirmationModal() {
-      this.confirmationModal.show = false
-      this.confirmationModal.message = ''
-      this.confirmationModal.onConfirm = null
+      this.confirmationModal.show = false;
+      this.confirmationModal.message = "";
+      this.confirmationModal.onConfirm = null;
     },
 
     confirmAction() {
       if (this.confirmationModal.onConfirm) {
-        this.confirmationModal.onConfirm()
+        this.confirmationModal.onConfirm();
       }
-      this.hideConfirmationModal()
+      this.hideConfirmationModal();
     },
 
     exportProgress() {
@@ -294,65 +388,67 @@ export const useStudyTrackerStore = defineStore('studyTracker', {
         progressData: this.progressData,
         streakData: this.streakData,
         exportDate: new Date().toISOString(),
-        version: '2.0',
-      }
+        version: "2.0",
+      };
 
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `java-study-progress-${new Date().toISOString().split('T')[0]}.json`
-      link.click()
-      URL.revokeObjectURL(url)
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `java-study-progress-${new Date().toISOString().split("T")[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
 
-      this.showCelebrationModal('📊 Progress exported successfully!')
+      this.showCelebrationModal("📊 Progress exported successfully!");
     },
 
     importProgress(file: File) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const data = JSON.parse(e.target?.result as string)
+          const data = JSON.parse(e.target?.result as string);
 
           if (data.progressData) {
-            this.progressData = data.progressData
-            this.saveProgressData()
+            this.progressData = data.progressData;
+            this.saveProgressData();
           }
 
           if (data.streakData) {
-            this.streakData = data.streakData
-            this.saveStreakData()
+            this.streakData = data.streakData;
+            this.saveStreakData();
           }
 
-          this.showCelebrationModal('📥 Progress imported successfully!')
+          this.showCelebrationModal("📥 Progress imported successfully!");
         } catch {
           this.showCelebrationModal(
-            '❌ Error importing progress file. Please check the file format.',
-          )
+            "❌ Error importing progress file. Please check the file format.",
+          );
         }
-      }
-      reader.readAsText(file)
+      };
+      reader.readAsText(file);
     },
 
     resetProgress() {
       this.showConfirmationModal(
-        'Are you sure you want to reset all progress? This action cannot be undone.',
+        "Are you sure you want to reset all progress? This action cannot be undone.",
         () => {
-          this.progressData = {}
+          this.progressData = {};
           this.streakData = {
             currentStreak: 0,
             lastActiveDate: null,
             longestStreak: 0,
-          }
-          localStorage.removeItem('javaStudyProgress')
-          localStorage.removeItem('javaStudyStreak')
-          this.showCelebrationModal('🔄 Progress reset successfully!')
+          };
+          localStorage.removeItem("javaStudyProgress");
+          localStorage.removeItem("javaStudyStreak");
+          this.showCelebrationModal("🔄 Progress reset successfully!");
         },
-      )
+      );
     },
 
     updateStudySettings(settings: Partial<StudySettings>) {
-      this.studySettings = { ...this.studySettings, ...settings }
+      this.studySettings = { ...this.studySettings, ...settings };
     },
   },
-})
+});

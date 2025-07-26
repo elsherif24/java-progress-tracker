@@ -1,3 +1,6 @@
+/* Import utilities */
+@import './utilities.css';
+
 /* Reset any default Vue template styles */
 #app {
   width: 100%;
