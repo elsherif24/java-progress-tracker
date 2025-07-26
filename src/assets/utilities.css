@@ -172,43 +172,6 @@
   font-weight: 500;
 }
 
-/* Progress Bar Utilities */
-.progress-spacing {
-  margin: 12px 0;
-}
-
-.progress-spacing--small {
-  margin: 8px 0;
-}
-
-.progress-spacing--large {
-  margin: 16px 0;
-}
-
-.progress-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.progress-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-  font-size: 0.9em;
-  color: var(--text-light);
-}
-
-.progress-stats .current {
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
-.progress-stats .total {
-  color: var(--text-muted);
-}
-
 /* Responsive Utilities */
 @media (max-width: 1200px) {
   .grid-auto {
@@ -248,17 +211,5 @@
     width: 70px;
     padding: 6px 8px;
     font-size: 0.8em;
-  }
-
-  .progress-spacing {
-    margin: 8px 0;
-  }
-
-  .progress-spacing--small {
-    margin: 6px 0;
-  }
-
-  .progress-spacing--large {
-    margin: 12px 0;
   }
 }

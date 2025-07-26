@@ -236,17 +236,7 @@ const markChapterAsDone = () => {
       completedDate: new Date().toISOString(),
     });
 
-    // Trigger celebration
-    store.celebrateCompletion(currentChapter.value.id);
-
-    // Auto-advance to next chapter if not the last one
-    if (currentChapter.value && currentChapter.value.id < 30) {
-      setTimeout(() => {
-        if (currentChapter.value) {
-          store.setCurrentChapter(currentChapter.value.id + 1);
-        }
-      }, 2000); // Wait 2 seconds for celebration
-    }
+    // Celebration is already handled in store.updateChapterProgress()
   }
 };
 </script>

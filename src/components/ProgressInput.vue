@@ -51,7 +51,3 @@ const updateValue = (event: Event) => {
   emit("update:modelValue", Math.min(Math.max(0, value), props.max));
 };
 </script>
-
-<style scoped>
-/* Progress styling is now handled by the unified ProgressBar component */
-</style>

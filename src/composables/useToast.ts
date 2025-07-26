@@ -56,7 +56,7 @@ export function useToast() {
   };
 
   // Specific toast methods for different milestone types
-  const showPageMilestone = (pagesRead: number, totalPages: number) => {
+  const showPageMilestone = (_pagesRead: number, totalPages: number) => {
     // This should only be called when ALL pages are completed
     addToast(`🎉 All ${totalPages} pages completed!`, "celebration", {
       icon: "📖",
@@ -66,7 +66,7 @@ export function useToast() {
   };
 
   const showProblemMilestone = (
-    problemsSolved: number,
+    _problemsSolved: number,
     totalProblems: number,
   ) => {
     // This should only be called when ALL problems are completed

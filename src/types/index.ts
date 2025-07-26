@@ -31,10 +31,6 @@ export interface ProgressData {
   [key: number]: ChapterProgress;
 }
 
-export interface SoundSettings {
-  enabled: boolean;
-}
-
 export type SoundType =
   | "smallWin"
   | "mediumWin"

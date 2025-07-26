@@ -211,15 +211,6 @@ input[type="file"]:focus {
   box-shadow: 0 0 10px rgba(93, 173, 226, 0.3);
 }
 
-/* Progress bar styles - Updated for new unified component */
-.progress-container {
-  margin: 8px 0;
-}
-
-.progress-item .progress-container {
-  margin: 4px 0;
-}
-
 /* Modal styles */
 .modal {
   position: fixed;
@@ -305,9 +296,5 @@ input[type="file"]:focus {
   .control-btn {
     padding: 10px 16px;
     font-size: 0.8em;
-  }
-
-  .progress-container {
-    margin: 6px 0;
   }
 }
