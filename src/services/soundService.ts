@@ -15,17 +15,17 @@ export class SoundService {
   private initializeSounds() {
     // Load audio files with correct paths from /public/assets/
     this.sounds = {
-      smallWin: this.createAudioSound("/assets/small-win.mp3"),
-      mediumWin: this.createAudioSound("/assets/medium-win.mp3"),
-      bigWin: this.createAudioSound("/assets/big-win1.mp3"),
-      biggestWin: this.createAudioSound("/assets/big-win2.mp3"),
+      smallWin: this.createAudioSound("./assets/small-win.mp3"),
+      mediumWin: this.createAudioSound("./assets/medium-win.mp3"),
+      bigWin: this.createAudioSound("./assets/big-win1.mp3"),
+      biggestWin: this.createAudioSound("./assets/big-win2.mp3"),
       click: this.createToneSound(440, 0.1),
-      pageComplete: this.createAudioSound("/assets/big-win1.mp3"), // big-win1 for completing all pages
-      problemComplete: this.createAudioSound("/assets/big-win1.mp3"), // big-win1 for completing all problems
-      mcqComplete: this.createAudioSound("/assets/medium-win.mp3"),
-      chapterStart: this.createAudioSound("/assets/small-win.mp3"),
-      chapterComplete: this.createAudioSound("/assets/big-win2.mp3"),
-      pageProgress: this.createAudioSound("/assets/small-win.mp3"), // small-win for page progress every 5 pages
+      pageComplete: this.createAudioSound("./assets/big-win1.mp3"), // big-win1 for completing all pages
+      problemComplete: this.createAudioSound("./assets/big-win1.mp3"), // big-win1 for completing all problems
+      mcqComplete: this.createAudioSound("./assets/medium-win.mp3"),
+      chapterStart: this.createAudioSound("./assets/small-win.mp3"),
+      chapterComplete: this.createAudioSound("./assets/big-win2.mp3"),
+      pageProgress: this.createAudioSound("./assets/small-win.mp3"), // small-win for page progress every 5 pages
     };
 
     // Test audio files are accessible
@@ -34,10 +34,10 @@ export class SoundService {
 
   private testAudioFiles() {
     const audioFiles = [
-      "/assets/small-win.mp3",
-      "/assets/medium-win.mp3",
-      "/assets/big-win1.mp3",
-      "/assets/big-win2.mp3",
+      "./assets/small-win.mp3",
+      "./assets/medium-win.mp3",
+      "./assets/big-win1.mp3",
+      "./assets/big-win2.mp3",
     ];
 
     audioFiles.forEach((file) => {
